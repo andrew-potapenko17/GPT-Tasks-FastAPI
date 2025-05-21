@@ -140,7 +140,7 @@ async def add_note_for_user(new_note : NoteCreate, current_user : User = Depends
     username = current_user.username
     noteid = len(db[username]["notes"])
     while noteid in db[username]["notes"]:
-        noted += 1
+        noteid += 1
     
     db[username]["notes"][noteid] = Note(id = noteid, **dict(new_note))
     return {"message" : "succesfully created note"}
