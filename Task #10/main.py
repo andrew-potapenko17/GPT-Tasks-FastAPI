@@ -159,7 +159,7 @@ async def read_users_me(current_user : User = Depends(get_current_active_user)):
 @app.post("/register")
 async def register_new_user(form : UserRegister):
     username = form.username
-    if username in db:
+    if username in db["users"]:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already exists with this username")
     
     if form.role not in ["reporter", "developer", "admin"]:
@@ -208,7 +208,7 @@ async def get_all_issues(status: Optional[str] = Query(None), reporter: Optional
         if assignee is not None and issue["assignee"] != assignee:
             continue
         result.append(issue)
-    return db["issues"]
+    return result
 
 @app.get("/issues/{id}")
 async def get_issue_by_id(id : int):
@@ -234,8 +234,8 @@ async def assign_issue(id : int, form : Optional[AssignIssue] = None, current_us
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Not found isssue with id {id}")
     
     if form is not None and current_user.role == "admin":
-        if form.username in db["users"] and db["users"][form.username]["role"] == "developer":
-            db["issues"][id]["assignee"] = form.username
+        if form.assignee in db["users"] and db["users"][form.assignee]["role"] == "developer":
+            db["issues"][id]["assignee"] = form.assignee
             return {"message" : "succesfully updated assignee"}
     else:
         if current_user.role == "developer" and db["issues"][id]["assignee"] == None:
