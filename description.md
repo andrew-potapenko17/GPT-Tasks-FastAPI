@@ -1,0 +1,1 @@
+That`s repository just to practice in FastAPI and do tasks from chat gpt
